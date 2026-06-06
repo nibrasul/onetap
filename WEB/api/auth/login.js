@@ -42,6 +42,15 @@ export default async function handler(req, res) {
     }
 
     // Generate JWT token
+    const jwtSecret = process.env.JWT_SECRET;
+    if (!jwtSecret) {
+      console.error('[Login] JWT_SECRET is not configured.');
+      return res.status(500).json({
+        error: 'Server authentication misconfigured.',
+        details: 'Missing JWT_SECRET environment variable.'
+      });
+    }
+
     const token = jwt.sign(
       {
         id: user.id,
@@ -49,7 +58,7 @@ export default async function handler(req, res) {
         email: user.email,
         name: user.name
       },
-      process.env.JWT_SECRET || 'fallback_secret_should_set_env',
+      jwtSecret,
       { expiresIn: '7d' } // 7 days expiry
     );
 

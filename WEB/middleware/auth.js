@@ -43,9 +43,13 @@ export function withAuth(handler) {
       console.log('[Auth] Token extracted, length:', token.length);
 
       // Verify JWT token
-      const jwtSecret = process.env.JWT_SECRET || 'fallback_secret_should_set_env';
-      if (jwtSecret === 'fallback_secret_should_set_env') {
-        console.warn('[Auth] Warning: Using fallback JWT secret. Set JWT_SECRET in environment variables.');
+      const jwtSecret = process.env.JWT_SECRET;
+      if (!jwtSecret) {
+        console.error('[Auth] JWT_SECRET is not configured.');
+        return res.status(500).json({
+          error: 'Server authentication misconfigured.',
+          details: 'Missing JWT_SECRET environment variable.'
+        });
       }
 
       try {
